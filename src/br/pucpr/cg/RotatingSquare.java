@@ -24,6 +24,7 @@ public class RotatingSquare implements Scene {
 	/** Representa a malha do quadrado. */
 
 	private Mesh square;
+	private Shader shader;
 
 	/** Angulo que o triangulo está */
 	private float angle;
@@ -36,22 +37,22 @@ public class RotatingSquare implements Scene {
 		//------------------
 		//Criação da malha
 		//------------------
-		square = new MeshBuilder()
-		.addVector2fAttribute("aPosition",
-			-0.5f,  0.5f,   //Vertice 0
-			 0.5f,  0.5f,   //Vertice 1
-			-0.5f, -0.5f,   //Vertice 2
-			 0.5f, -0.5f    //Vertice 3
-		).addVector3fAttribute("aColor",
-			1.0f, 0.0f, 0.0f, //Vertice 0
-			1.0f, 1.0f, 1.0f, //Vertice 1
-			0.0f, 1.0f, 0.0f, //Vertice 2
-			0.0f, 0.0f, 1.0f  //Vertice 3
-		).setIndexBuffer(
-			0, 2, 3,   //Vertices do primeiro triangulo
-			0, 3, 1    //Segundo triangulo
-		).loadShader("/br/pucpr/resource/basic")
-        .create();
+		shader = Shader.loadProgram("basic");
+		square = new MeshBuilder(shader)
+			.addVector2fAttribute("aPosition",
+				-0.5f,  0.5f,   //Vertice 0
+				 0.5f,  0.5f,   //Vertice 1
+				-0.5f, -0.5f,   //Vertice 2
+				 0.5f, -0.5f    //Vertice 3
+			).addVector3fAttribute("aColor",
+				1.0f, 0.0f, 0.0f, //Vertice 0
+				1.0f, 1.0f, 1.0f, //Vertice 1
+				0.0f, 1.0f, 0.0f, //Vertice 2
+				0.0f, 0.0f, 1.0f  //Vertice 3
+			).setIndexBuffer(
+				0, 2, 3,   //Vertices do primeiro triangulo
+				0, 3, 1    //Segundo triangulo
+			).create();
 	}
 
 	@Override
@@ -70,13 +71,12 @@ public class RotatingSquare implements Scene {
 	@Override
 	public void draw() {
 		//Solicita a limpeza da tela
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		//Associa a transformação a malha
-		square.setUniform("uWorld", new Matrix4f().rotateY(angle));
-
-		//Desenha
-		square.draw();
+		square.setUniform("uWorld", new Matrix4f().rotateY(angle))
+				.setWireframe(true)
+				.draw(shader);
 	}
 
 	@Override
